@@ -15,85 +15,210 @@ const ProductPage = () => {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!input.trim() || status !== "ready") return;
 
-        if (!input.trim()) return;
-
-        sendMessage({
-            text: input,
-        });
-
+        sendMessage({ text: input });
         setInput("");
     };
 
-    return (
-        <>
-            <div>
-                {messages.map((message) => (
-                    <div key={message.id}>
-                        <strong>{message.role}:</strong>
+    const renderMessagePart = (part: any) => {
+        switch (part.type) {
+            case "text":
+                return <p className="leading-relaxed text-gray-800 whitespace-pre-wrap">{part.text}</p>;
 
-                        {message.parts.map((part, index) => (
-                            <div key={index}>
-                                {part.type === "text" ? (
-                                    <span>{part.text}</span>
-                                ) : part.type === "tool-getProductDetailsTool" ? (
-                                    <div>
-                                        <strong>Product Tool</strong>
+            case "tool-getProductDetailsTool":
+                return (
+                    <div className="my-3 rounded-lg border border-blue-200 bg-blue-50/70 p-4 shadow-sm text-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                            <strong className="text-blue-900 font-semibold uppercase tracking-wider text-xs">
+                                Product Lookup Tool
+                            </strong>
+                        </div>
 
-                                        {part.state === "input-available" && (
-                                            <p>
-                                                Checking order: {part?.input?.orderId}
-                                            </p>
-                                        )}
+                        {part.state === "input-available" && (
+                            <p className="text-blue-700 italic">
+                                Checking order ID: <span className="font-mono font-medium">{part?.input?.orderId}</span>...
+                            </p>
+                        )}
 
-                                        {part.state === "output-available" && (
-                                            <div>
-                                                {part?.output?.success ? (
-                                                    <div>
-                                                        <p>
-                                                            Order ID: {part?.output?.product?.orderId}
-                                                        </p>
-
-                                                        <p>
-                                                            Product: {part?.output?.product?.name}
-                                                        </p>
-
-                                                        <p>
-                                                            Price: ₹{part?.output?.product?.price}
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <p>{part?.output?.message}</p>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {part.state === "output-error" && (
-                                            <p>
-                                                Something went wrong while getting the product.
-                                            </p>
-                                        )}
+                        {part.state === "output-available" && (
+                            <div>
+                                {part?.output?.success ? (
+                                    <div className="mt-2 space-y-1.5 rounded-md bg-white p-3 border border-blue-100 text-gray-700">
+                                        <p>
+                                            <span className="font-medium text-gray-500">Order ID:</span>{" "}
+                                            <span className="font-mono text-gray-900">{part?.output?.product?.orderId}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Product:</span>{" "}
+                                            <span className="font-semibold text-gray-900">{part?.output?.product?.name}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Price:</span>{" "}
+                                            <span className="font-bold text-emerald-600">₹{part?.output?.product?.price}</span>
+                                        </p>
                                     </div>
-                                ) : null}
+                                ) : (
+                                    <p className="text-amber-700 mt-1 font-medium">{part?.output?.message}</p>
+                                )}
                             </div>
-                        ))}
+                        )}
+
+                        {part.state === "output-error" && (
+                            <p className="text-red-600 font-medium mt-1">
+                                Something went wrong while retrieving product details.
+                            </p>
+                        )}
                     </div>
-                ))}
+                );
+
+            case "tool-searchProductTool":
+                return (
+                    <div className="my-3 rounded-lg border border-blue-200 bg-blue-50/70 p-4 shadow-sm text-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                            <strong className="text-blue-900 font-semibold uppercase tracking-wider text-xs">
+                                Searching Product...
+                            </strong>
+                        </div>
+
+                        {part.state === "input-available" && (
+                            <p className="text-blue-700 italic">
+                                Your Product is:
+                            </p>
+                        )}
+
+                        {part.state === "output-available" && (
+                            <div>
+                                {part?.output?.success ? (
+                                    <div className="mt-2 space-y-1.5 rounded-md bg-white p-3 border border-blue-100 text-gray-700">
+                                        <p>
+                                            <span className="font-medium text-gray-500">ID:</span>{" "}
+                                            <span className="font-mono text-gray-900">{part?.output?.product?.id}</span>
+
+                                            {/* <span className="font-medium text-gray-500">Order ID:</span>{" "} */}
+                                            {/* <span className="font-mono text-gray-900">{part?.output?.product?.orderId}</span> */}
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Product:</span>{" "}
+                                            <span className="font-semibold text-gray-900">{part?.output?.product?.name}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Price:</span>{" "}
+                                            <span className="font-bold text-emerald-600">₹{part?.output?.product?.price}</span>
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-amber-700 mt-1 font-medium">{part?.output?.message}</p>
+                                )}
+                            </div>
+                        )}
+
+                        {part.state === "output-error" && (
+                            <p className="text-red-600 font-medium mt-1">
+                                Something went wrong while retrieving product details.
+                            </p>
+                        )}
+                    </div>
+                );
+
+            case "tool-checkOrderStatusTool":
+                return (
+                    <div className="my-3 rounded-lg border border-blue-200 bg-blue-50/70 p-4 shadow-sm text-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                            <strong className="text-blue-900 font-semibold uppercase tracking-wider text-xs">
+                                Checking Order Status of your product...
+                            </strong>
+                        </div>
+
+                        {part.state === "input-available" && (
+                            <p className="text-blue-700 italic">
+                                Your Product Status is:
+                            </p>
+                        )}
+
+                        {part.state === "output-available" && (
+                            <div>
+                                {part?.output?.success ? (
+                                    <div className="mt-2 space-y-1.5 rounded-md bg-white p-3 border border-blue-100 text-gray-700">
+
+                                        <p>
+                                            <span className="font-bold text-emerald-600">{part?.output?.message || "Kya Yarr tum bhi"}</span>
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-amber-700 mt-1 font-medium">{part?.output?.message}</p>
+                                )}
+                            </div>
+                        )}
+
+                        {part.state === "output-error" && (
+                            <p className="text-red-600 font-medium mt-1">
+                                Something went wrong while retrieving product details.
+                            </p>
+                        )}
+                    </div>
+                );
+
+            default:
+                return null;
+        }
+    };
+
+    console.log('message', messages)
+    return (
+        <div className="flex flex-col h-screen w-3xl mx-auto p-4 bg-gray-50">
+            {/* Header */}
+            <header className="py-4 mb-4 border-b border-gray-200">
+                <h1 className="text-xl font-bold text-gray-800">Product Support Assistant</h1>
+                <p className="text-xs text-gray-500">Search products by name or order ID</p>
+            </header>
+
+            {/* Message Stream */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                {messages.map((message) => {
+                    const isUser = message.role === "user";
+                    return (
+                        <div
+                            key={message.id}
+                            className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
+                        >
+                            <span className="text-xs text-gray-400 mb-1 px-1 capitalize">{message.role}</span>
+                            <div
+                                className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${isUser
+                                    ? "bg-blue-600 text-white rounded-br-none"
+                                    : "bg-white text-gray-800 border border-gray-200 rounded-bl-none"
+                                    }`}
+                            >
+                                {message.parts.map((part, index) => (
+                                    <div key={index}>{renderMessagePart(part)}</div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            <form onSubmit={handleSubmit}>
+            {/* Input Form */}
+            <form onSubmit={handleSubmit} className="mt-4 flex gap-2 pt-2 border-t border-gray-200 bg-gray-50">
                 <input
                     type="text"
-                    placeholder="Enter your order id"
+                    placeholder="Ask about a product or enter order ID..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent text-sm bg-black shadow-sm"
                 />
-
-                <button type="submit" disabled={status !== "ready"}>
-                    Send Query
+                <button
+                    type="submit"
+                    disabled={status !== "ready" || !input.trim()}
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                >
+                    {status === "streaming" ? "Replying..." : "Send"}
                 </button>
             </form>
-        </>
+        </div>
     );
 };
 
