@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { products } from "../db";
 
 export const getProductDetailsTool = tool({
-    description: 'Get the product details',
+    description: 'Get detailed information about a specific product using an order ID',
     inputSchema: z.object({
         orderId: z.number().describe('Order id for the product')
     }),
