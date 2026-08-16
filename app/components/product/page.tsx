@@ -162,6 +162,57 @@ const ProductPage = () => {
                     </div>
                 );
 
+            case "tool-getProductAvailabilityTool":
+                return (
+                    <div className="my-3 rounded-lg border border-blue-200 bg-blue-50/70 p-4 shadow-sm text-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                            <strong className="text-blue-900 font-semibold uppercase tracking-wider text-xs">
+                                Checking your product Availability...
+                            </strong>
+                        </div>
+
+                        {part.state === "input-available" && (
+                            <p className="text-blue-700 italic">
+                                Your Product is:
+                            </p>
+                        )}
+
+                        {part.state === "output-available" && (
+                            <div>
+                                {part?.output?.success ? (
+                                    <div className="mt-2 space-y-1.5 rounded-md bg-white p-3 border border-blue-100 text-gray-700">
+                                        <p>
+                                            <span className="font-medium text-gray-500">Product Id:</span>{" "}
+                                            <span className="font-mono text-gray-900">{part?.output?.productId}</span>
+                                        </p>
+                                        
+                                        <p>
+                                            <span className="font-medium text-gray-500">Product:</span>{" "}
+                                            <span className="font-semibold text-gray-900">{part?.output?.name}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Price:</span>{" "}
+                                            <span className="font-bold text-emerald-600">₹{part?.output?.price}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-medium text-gray-500">Availability:</span>{" "}
+                                            <span className="font-bold text-emerald-600">{part?.output?.isAvailable ? "In Stock" : "Out of Stock"}</span>
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-amber-700 mt-1 font-medium">{part?.output?.message}</p>
+                                )}
+                            </div>
+                        )}
+
+                        {part.state === "output-error" && (
+                            <p className="text-red-600 font-medium mt-1">
+                                Something went wrong while retrieving product details.
+                            </p>
+                        )}
+                    </div>
+                );
             default:
                 return null;
         }

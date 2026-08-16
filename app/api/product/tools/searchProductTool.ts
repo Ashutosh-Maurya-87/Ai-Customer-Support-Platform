@@ -8,21 +8,23 @@ export const searchProductTool = tool({
         searchQuery: z.string().describe('This is the query to search the product')
     }),
     execute: async ({ searchQuery }) => {
-        if (!searchQuery) return products ?? [];
+        const cleanQuery = searchQuery.trim().toLowerCase()
 
-        const query = String(searchQuery).trim().toLowerCase();
+        const results = products?.filter((item) => {
+            const matchesId = String(item?.id ?? item?.productId ?? '').toLowerCase() === cleanQuery
+            const matchesTitle = item?.title?.toLowerCase().includes(cleanQuery)
+            const matchesName = item?.name?.toLowerCase().includes(cleanQuery)
+            const matchesCategory = item?.category?.toLowerCase().includes(cleanQuery)
 
-        return (
-            products?.filter((item) => {
-                const matchesId = String(item?.id ?? "").toLowerCase() === query;
+            return matchesId || matchesTitle || matchesName || matchesCategory
+        }) ?? []
 
-                const matchesTitle = item?.title?.toLowerCase().includes(query);
-                const matchesName = item?.name?.toLowerCase().includes(query);
-
-                const matchesCategory = item?.category?.toLowerCase().includes(query);
-
-                return matchesId || matchesTitle || matchesName || matchesCategory;
-            }) ?? []
-        );
+        return results.map((item) => ({
+            id: item.id,
+            productId: item.productId,
+            title: item.title || item.name,
+            price: item.price,
+            category: item.category,
+        }))
     }
 })
