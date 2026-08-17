@@ -4,6 +4,7 @@ import { getProductDetailsTool } from "./tools/getProductDetailsTool"
 import { searchProductTool } from "./tools/searchProductTool"
 import { checkOrderStatusTool } from "./tools/checkOrderStatusTool"
 import { getProductAvailabilityTool } from "./tools/getProductAvailablityTool"
+import { cancelOrderTool } from "./tools/cancelOrderTool"
 
 
 export async function POST(req: Request) {
@@ -13,8 +14,14 @@ export async function POST(req: Request) {
         const result = streamText({
             model: openai('gpt-4.1-nano'),
             messages: await convertToModelMessages(messages),
-            tools: { getProductDetailsTool, searchProductTool, checkOrderStatusTool, getProductAvailabilityTool },
-            stopWhen: stepCountIs(10)
+            tools: {
+                getProductDetailsTool,
+                searchProductTool,
+                checkOrderStatusTool,
+                getProductAvailabilityTool,
+                cancelOrderTool
+            },
+            stopWhen: stepCountIs(5)
         })
         console.log('server reslult:', result)
         return result.toUIMessageStreamResponse()
