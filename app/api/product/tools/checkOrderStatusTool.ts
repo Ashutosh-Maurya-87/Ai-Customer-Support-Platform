@@ -10,8 +10,19 @@ export const checkOrderStatusTool = tool({
     }),
     execute: async ({ orderId }) => {
         if (!orderId) return null
-        const data = products.find((item) => item?.orderId === Number(orderId))
+        const order = products.find((item) => item?.orderId === Number(orderId))
 
-        return `Your order product is: ${data?.name} delivered in the given address`
+        return {
+            id: order?.id,
+            orderId: order?.orderId,
+            productId: order?.productId,
+            name: order?.name,
+            price: order?.price,
+            title: order?.title,
+            status: order?.status,
+            success: true
+        }
+
+        // return `Your order product is: ${data?.name} delivered in the given address`
     }
 })

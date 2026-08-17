@@ -6,7 +6,8 @@ export type Product = {
   price: number;
   category: string;
   title: string;
-  availability: boolean
+  availability: boolean,
+  status:string
 };
 
 export const products: Product[] = [
@@ -19,7 +20,8 @@ export const products: Product[] = [
     price: 2999,
     category: "Shoes",
     title: "running-shoes",
-    availability: true
+    availability: true,
+    status:"Shipped"
   },
   {
     id: 2,
@@ -29,7 +31,8 @@ export const products: Product[] = [
     price: 3499,
     category: "Shoes",
     title: "casual-sneakers",
-    availability: true
+    availability: true,
+    status:'Delivered'
 
   },
   {
@@ -40,7 +43,9 @@ export const products: Product[] = [
     price: 4999,
     category: "Shoes",
     title: "hiking-boots",
-    availability: false
+    availability: false,
+    status: 'ordered'
+
 
   },
 
@@ -53,7 +58,9 @@ export const products: Product[] = [
     price: 2199,
     category: "Clothing",
     title: "denim-jeans",
-    availability: true
+    availability: true,
+    status: 'Delivered'
+
 
   },
   {
@@ -64,7 +71,9 @@ export const products: Product[] = [
     price: 1799,
     category: "Clothing",
     title: "hoodies",
-    availability: false
+    availability: false,
+    status: 'Ordered'
+
 
   },
   {
@@ -75,7 +84,9 @@ export const products: Product[] = [
     price: 899,
     category: "Clothing",
     title: "polo-tshirt",
-    availability: true
+    availability: true,
+    status: 'Shipped'
+
 
   },
 
@@ -88,7 +99,9 @@ export const products: Product[] = [
     price: 8999,
     category: "Electronics",
     title: "wireless-headphones",
-    availability: true
+    availability: true,
+    status: 'Delivered'
+
 
   },
   {
@@ -99,7 +112,9 @@ export const products: Product[] = [
     price: 12999,
     category: "Electronics",
     title: "smartwatches",
-    availability: true
+    availability: true,
+    status: 'Shipped'
+
 
   },
   {
@@ -110,7 +125,9 @@ export const products: Product[] = [
     price: 4500,
     category: "Electronics",
     title: "gaming-keyboards",
-    availability: false
+    availability: false,
+    status: 'Ordered'
+
 
   },
 ];
