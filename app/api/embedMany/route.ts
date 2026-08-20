@@ -3,43 +3,60 @@ import { cosineSimilarity, embed, embedMany, generateText } from "ai"
 
 const chunks = [
     {
-        id: "chunk-1",
+        id: "refund-1",
         text: "Customers can request a refund within 30 days of purchase.",
         metadata: {
+            category: "refund",
             documentName: "Refund Policy",
-            category: "Refund"
-        }
+        },
     },
     {
-        id: "chunk-2",
+        id: "refund-2",
         text: "Refunds are processed within 5 business days after inspection.",
         metadata: {
+            category: "refund",
             documentName: "Refund Policy",
-            category: "Refund"
-        }
+        },
     },
     {
-        id: "chunk-3",
-        text: "Digital products are not eligible for refunds.",
+        id: "shipping-1",
+        text: "Standard shipping takes 5 to 7 business days.",
         metadata: {
-            documentName: "Refund Policy",
-            category: "Refund"
-        }
-    }
+            category: "shipping",
+            documentName: "Shipping Policy",
+        },
+    },
+    {
+        id: "shipping-2",
+        text: "Customers can track their order using the tracking ID.",
+        metadata: {
+            category: "shipping",
+            documentName: "Shipping Policy",
+        },
+    },
+    {
+        id: "hr-1",
+        text: "Employees receive 20 days of annual paid leave.",
+        metadata: {
+            category: "hr",
+            documentName: "Employee Policy",
+        },
+    },
 ];
-
 export async function GET() {
     try {
-        // const { text } = await req.json()
-        const threshold = 0.7
+        const selectedCatrgory = 'refund'
+        const filteredChunks = chunks.filter((chunk) => chunk.metadata.category === selectedCatrgory)
+        const threshold = 0.4
         // example --
-        const query = "How long does it take to get a refund?";
+        const query = "How long does shipping take?";
         const res = await embed({
             model: openai.embedding('text-embedding-3-small'),
             value: query
         })
 
-        const values = chunks.map((chunk, i) => chunk.text)
+        console.log('filteredChunks', filteredChunks)
+        const values = filteredChunks.map((chunk, i) => chunk.text)
 
         const result = await embedMany({
             model: openai.embedding('text-embedding-3-small'),
@@ -47,7 +64,7 @@ export async function GET() {
         })
         // console.log('embedings', result.embeddings)
         // console.log('embeding', res.embedding)
-        const embeddeChunk = chunks.map((chunk, index) => ({
+        const embeddeChunk = filteredChunks.map((chunk, index) => ({
             ...chunk,
             // embedding: result.embeddings[index]
             score: cosineSimilarity(res?.embedding, result?.embeddings[index])
@@ -57,6 +74,7 @@ export async function GET() {
         const topK = embeddeChunk?.filter((chunk) => chunk?.score >= threshold)
             .sort((a, b) => b.score - a.score).slice(0, 2)
 
+        console.log('topK', topK)
         // now after applying thresold if top-K not exist then don't need to send that chunk to LLM
         // Model so we are returnign from here and it will reduce the cost and it also would be cost effective
         if (topK.length === 0) {
