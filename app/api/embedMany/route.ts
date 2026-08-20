@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai"
-import { cosineSimilarity, embedMany } from "ai"
+import { cosineSimilarity, embed, embedMany, generateText } from "ai"
 
 const chunks = [
     {
@@ -31,19 +31,55 @@ const chunks = [
 export async function GET() {
     try {
         // const { text } = await req.json()
+        const threshold = 0.7
+        // example --
+        const query = "How long does it take to get a refund?";
+        const res = await embed({
+            model: openai.embedding('text-embedding-3-small'),
+            value: query
+        })
+
         const values = chunks.map((chunk, i) => chunk.text)
 
         const result = await embedMany({
             model: openai.embedding('text-embedding-3-small'),
             values
         })
-        console.log('embedings', result.embeddings)
+        // console.log('embedings', result.embeddings)
+        // console.log('embeding', res.embedding)
         const embeddeChunk = chunks.map((chunk, index) => ({
             ...chunk,
-            embedding: result.embeddings[index]
+            // embedding: result.embeddings[index]
+            score: cosineSimilarity(res?.embedding, result?.embeddings[index])
         }))
-        console.log('similarity', cosineSimilarity(result.embeddings[0], result.embeddings[1]))
-        return Response.json(embeddeChunk)
+        // Using threshold so that it give the relevant enough data
+        // top-K give the top most data with quantity control
+        const topK = embeddeChunk?.filter((chunk) => chunk?.score >= threshold)
+            .sort((a, b) => b.score - a.score).slice(0, 2)
+
+        // now after applying thresold if top-K not exist then don't need to send that chunk to LLM
+        // Model so we are returnign from here and it will reduce the cost and it also would be cost effective
+        if (topK.length === 0) {
+            return Response.json({
+                answer: "I could not find this information in the knowledge base."
+            });
+        }
+        const context = topK.map((chunk, i) => chunk?.text).join("\n\n")
+
+        const LLMAns = await generateText({
+            model: openai('gpt-4.1-nano'),
+            prompt: `You are a helpful support assistant.
+                     Answer the user's question ONLY using the provided context.
+                     If the answer is not available in the context, say:
+                     "I could not find this information in the knowledge base."
+            CONTEXT:${context}
+            USER QUESTION:${query}`
+        })
+        console.log('asnwer', LLMAns.text)
+        return Response.json({
+            answer: LLMAns.text,
+            sources: topK
+        });
     } catch (error) {
         return Response.json({
             status: 500,
