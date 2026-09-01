@@ -83,6 +83,9 @@ export async function GET() {
                 answer: "I could not find this information in the knowledge base."
             });
         }
+
+        // context builder - making the context according to the top-K data and 
+        // sending it to LLM model so that it can answer the question
         const context = topK.map((chunk, i) => chunk?.text).join("\n\n")
 
         const LLMAns = await generateText({
