@@ -48,7 +48,8 @@ export async function GET() {
         const selectedCatrgory = 'refund'
         const filteredChunks = chunks.filter((chunk) => chunk.metadata.category === selectedCatrgory)
         const threshold = 0.4
-        // example --
+        
+        // User Query -> converting query to the vector format
         const query = "How long does shipping take?";
         const res = await embed({
             model: openai.embedding('text-embedding-3-small'),
@@ -56,8 +57,8 @@ export async function GET() {
         })
 
         console.log('filteredChunks', filteredChunks)
-        const values = filteredChunks.map((chunk, i) => chunk.text)
 
+        const values = filteredChunks.map((chunk, i) => chunk.text)
         const result = await embedMany({
             model: openai.embedding('text-embedding-3-small'),
             values
